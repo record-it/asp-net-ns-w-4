@@ -53,7 +53,7 @@ namespace wykład_4.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,EditionYear,Created")] Book book)
+        public async Task<IActionResult> Create([Bind("Title, EditionYear,Created")] Book book)
         {
             if (ModelState.IsValid)
             {
@@ -150,6 +150,19 @@ namespace wykład_4.Controllers
             
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        public string GetBookDetails([FromQuery]int id)
+        {
+            return _context.Books.Include(b => b.BookDetails).FirstOrDefault(b => b.Id == id)?.BookDetails?.ToString()??"Brak szczegółów";
+        }
+
+        public void AddAuthor([FromQuery]int bookId, [FromQuery] int authorId)
+        {
+            Book book = _context.Books.Find(bookId);
+            Author author = _context.Authors.Find(authorId);
+            book?.Authors.Add(author);
+            _context.SaveChanges();
         }
 
         private bool BookExists(int id)
